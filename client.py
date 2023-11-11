@@ -1,12 +1,18 @@
 import socket
+from threading import Thread
 from tkinter import *
 from tkinter import ttk
+import ftplib
+import os
+import ntpath #This is used to extract filename from path
+
 from tkinter import filedialog
-from tkinter import font
+from pathlib import Path
+
+
+from playsound import playsound
 import pygame
 from pygame import mixer
-import os
-import time
 
 PORT = 8050
 IP_ADDRESS = '127.0.0.1'
@@ -14,27 +20,20 @@ SERVER = None
 BUFFER_SIZE = 4096
 
 song_counter = 0
-
 listBox = None
 song_selected = None
-
-def getMusicFile():
-    global listBox
-    for file in os.listdir('shared_files'):
-       filename = os.fsdecode(file) 
-       listBox.insert(song_counter, filename)
-       song_counter += 1
+filePathLabel = None
+infoLabel = None
 
 def play():
     global song_selected
     song_selected = listBox.get(ANCHOR)
     
-    pygame
-    mixer.init()
+    pygame.mixer.init()
     # retrieves the file from the system
-    mixer.music.load('shared_file/'+song_selected)
+    pygame.mixer.music.load('shared_files/'+song_selected)
     # playing music
-    mixer.music.play()
+    pygame.mixer.music.play()
 
     # displaying the current song being played in the info label
     if(song_selected != ""):
@@ -44,15 +43,16 @@ def play():
 
 def stopMusic():
     global song_selected
-    pygame
-    mixer.init()
-    mixer.music.load('shared_files/'+song_selected)
-    mixer.music.pause()
+    pygame.mixer.init()
+    pygame.mixer.music.load('shared_files/'+song_selected)
+    pygame.mixer.music.pause()
     infoLabel.configure(text="")
 
 def musicWindow():
     global listBox
     global infoLabel
+    global song_counter
+    global filePathLabel
 
     window = Tk()
     window.title('Share Music')
@@ -64,6 +64,11 @@ def musicWindow():
 
     listBox= Listbox(window, height=10, width=39, activestyle='dotbox', font=('Ink Free', 10))
     listBox.place(x=10, y=25)
+
+    for file in os.listdir('shared_files'):
+        filename = os.fsdecode(file)
+        listBox.insert(song_counter, filename)
+        song_counter += 1
 
     scrollbar = Scrollbar(listBox)
     scrollbar.place(relheight=1, relx=1)
@@ -81,8 +86,8 @@ def musicWindow():
     download = Button(window, text='Download', bd=1, width=10, bg='#eadeff', font=('Ink Free', 10))
     download.place(x=200, y=260)
 
-    #infoLabel = Label(window, text='', fg='blue', font=('Ink Free', 10))
-    #infoLabel.place(x=10, y=280)
+    infoLabel = Label(window, text='', fg='blue', font=('Ink Free', 10))
+    infoLabel.place(x=4, y=330)
 
     #available_fonts = font.families()
     #print(available_fonts)
